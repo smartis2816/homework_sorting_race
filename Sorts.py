@@ -1,10 +1,13 @@
 import json
 import random
 import time
+import sys
+
+sys.setrecursionlimit(10000001)
 
 
 class Sorts:
-    __COUNT = 20
+    __COUNT = 2
 
     def run(self, array):
         pass
@@ -17,7 +20,7 @@ class Sorts:
             self.run(array)
             end_time = time.time()
             result += (end_time - start_time)
-        result = result / self.__COUNT * 1000
+        result = (result / self.__COUNT) * 1000
         data = {'Алгоритм': f'{self.__class__.__name__}', 'Массив': key, 'Время работы в миллисекундах:': result}
         with (open(f'./results/{self.__class__.__name__}.json', 'a', newline='', encoding='utf-8') as f):
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -129,56 +132,30 @@ class LSD(Sorts):
         return array
 
 
-# O(nlog²n)
-class MSD(Sorts):
-    pass
-
-
 # Быстрая сортировка
 class QuickSort(Sorts):
-    def __swap(self, array, left_value, right_value):
-        array[left_value], array[right_value] = array[right_value], array[left_value]
-
-    def __get_pivot_index(self, array, min_index, max_index):
-        pivot_index = min_index - 1
-        for i in range(min_index, max_index):
-            if array[i] < array[max_index]:
-                pivot_index += 1
-                self.__swap(array, i, pivot_index)
-        pivot_index += 1
-        self.__swap(array, pivot_index, max_index)
-        return pivot_index
-
-    def __quick_sort(self, array, min_index, max_index):
-        if min_index >= max_index:
-            return array
-        pivot = self.__get_pivot_index(array, min_index, max_index)
-        self.__quick_sort(array, min_index, pivot - 1)
-        self.__quick_sort(array, pivot + 1, max_index)
-        return array
 
     def run(self, array):
         min_index, max_index = 0, len(array) - 1
         res = self.__quick_sort(array, min_index, max_index)
         return res
 
-
-# Турнирная сортировка - O(N*log2N) - неустойчивый - неестественный
-class TournamentSort(Sorts):
-
-    def run(self, array):
-        length = len(array)
-        for i in range(1, length):
-            step = 1
-            while step < length - i + 1:
-                k = step
-                step *= 2
-                j = i
-                while j < length - k + 1:
-                    if array[j - 1] >= array[j + k - 1]:
-                        array[j - 1], array[j + k - 1] = array[j + k - 1], array[j - 1]
-                    j += step
-        return array
+    def __quick_sort(self, array, min_index, max_index):
+        if min_index >= max_index:
+            return array
+        pivot = array[random.randint(min_index, max_index)]
+        i, j = min_index, max_index
+        while i <= j:
+            while array[i] < pivot:
+                i += 1
+            while array[j] > pivot:
+                j -= 1
+            if i <= j:
+                array[i], array[j] = array[j], array[i]
+                i += 1
+                j -= 1
+        self.__quick_sort(array, min_index, j)
+        self.__quick_sort(array, i, max_index)
 
 
 # Пирамидальная сортировка - O(N*log2N) - неустойчивый - неестественный
